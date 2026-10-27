@@ -39,7 +39,11 @@ else{
 if($LASTEXITCODE -ne 0){throw 'Could not update draft release notes'}
 & $gh release upload $tag $binary $zip $sha --repo $repo --clobber
 if($LASTEXITCODE -ne 0){throw 'Upload failed; draft retained'}
-$releaseJson=& $gh api ('repos/'+$repo+'/releases/tags/'+$tag)
+$draftJson=& $gh release view $tag --repo $repo --json databaseId,isDraft
+if($LASTEXITCODE -ne 0){throw 'Could not locate uploaded draft'}
+$draft=$draftJson | ConvertFrom-Json
+if(!$draft.isDraft){throw 'Release is no longer a draft; publish aborted'}
+$releaseJson=& $gh api ('repos/'+$repo+'/releases/'+$draft.databaseId)
 if($LASTEXITCODE -ne 0){throw 'Could not verify uploaded release'}
 $release=$releaseJson | ConvertFrom-Json
 $asset=@($release.assets | Where-Object name -eq 'Flow-Lab.exe')
