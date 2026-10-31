@@ -1,0 +1,19 @@
+Twitch, 31.10.2026
+
+Официальный адрес IRC WebSocket: wss://irc-ws.chat.twitch.tv:443
+https://dev.twitch.tv/docs/chat/irc/
+https://discuss.dev.twitch.com/t/decommission-of-non-secure-websocket-connections-to-twitch-irc-servers/64142
+
+У пользователей zapret есть похожая жалоба: видео работает, чат не подключается; сообщения о неуспешном добавлении широкого списка доменов и работоспособности с туннелем. В обсуждении нет подтверждённого универсального исправления.
+https://github.com/Flowseal/zapret-discord-youtube/issues/18072
+
+Поэтому Flow Lab проверяет соединение с конкретным хостом чата. Подбор сравнивает два варианта только для этого TCP-хоста: без изменения пакетов и ограниченный fake/badseq. Доступность WebSocket не доказывает вход в аккаунт или получение сообщений в браузере. Нельзя заявлять, что причина Влада установлена без его проверки.
+
+Исходный метод Discord TCP T3/T4:
+https://github.com/Flowseal/zapret-discord-youtube/discussions/3279
+
+Установщик: Inno Setup 6.7.4. Загрузка с официального GitHub jrsoftware/issrc, SHA256 a549929319f9120716677c685535ca4671e4b937b5fdc87e2585f32d8eb30e8c, проверена действующая Authenticode-подпись Pyrsys B.V.
+https://jrsoftware.org/isdl.php
+https://jrsoftware.org/ishelp/topic_setup_appmutex.htm
+
+Инструмент компиляции не входит в дистрибутив. Сам Flow Lab пока не имеет сертификата подписи кода.

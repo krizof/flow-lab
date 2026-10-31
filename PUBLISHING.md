@@ -11,7 +11,7 @@
 3. Выполните из папки этого репозитория:
 
 ```powershell
-.\Publish-Release.ps1 -Exe "C:\build\Discord-Flow-Lab.exe" -Version "0.8.0" -NotesFile "C:\build\notes.txt" -Importance normal
+.\Publish-Release.ps1 -Exe "C:\build\Discord-Flow-Lab.exe" -Version "1.2.0" -Installer "C:\build\Flow-Lab-Setup.exe" -NotesFile "C:\build\notes.txt" -Importance normal
 ```
 
 Для важного исправления используйте `-Importance important`. Скрипт подготовит дистрибутив, создаст черновик, загрузит файлы, сверит SHA256 GitHub с локальным EXE и только затем опубликует выпуск как Latest. Опубликованные выпуски не перезаписываются: выпускайте следующий номер.
@@ -26,7 +26,7 @@
 <!-- flow-lab:important -->
 ```
 
-4. Прикрепите **Flow-Lab.exe** — именно это имя ожидает приложение. Дополнительно ZIP и SHA256SUMS.txt.
+4. Прикрепите **Flow-Lab.exe** — именно это имя ожидает приложение. Также Flow-Lab-Setup.exe, ZIP и SHA256SUMS.txt. SHA256 всех файлов сверяется до публикации.
 5. Сохраните черновик, дождитесь завершения загрузки всех файлов, затем Publish release и Set as latest release.
 6. На клиенте нажмите «Проверить Flow Lab» и проверьте версию/описание.
 

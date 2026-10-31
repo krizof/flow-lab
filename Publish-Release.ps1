@@ -2,6 +2,7 @@ param(
  [Parameter(Mandatory=$true)][string]$Exe,
  [Parameter(Mandatory=$true)][ValidatePattern('^\d+\.\d+\.\d+$')][string]$Version,
  [Parameter(Mandatory=$true)][string]$NotesFile,
+ [string]$Installer,
  [ValidateSet('normal','important')][string]$Importance='normal',
  [switch]$PrepareOnly
 )
@@ -22,7 +23,11 @@ $publishNotes=Join-Path $stage 'release-notes.txt'
 $zip=Join-Path $stage ('Flow-Lab-'+$Version+'-win-x64.zip')
 Compress-Archive -LiteralPath @($binary,(Join-Path $stage 'START-HERE.txt'),(Join-Path $stage 'THIRD-PARTY.txt'),$publishNotes) -DestinationPath $zip -Force
 $sha=Join-Path $stage 'SHA256SUMS.txt'
-$lines=foreach($file in @($binary,$zip)){(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()+'  '+[IO.Path]::GetFileName($file)}
+$payloads=@($binary,$zip)
+if($Installer){$setup=Join-Path $stage 'Flow-Lab-Setup.exe'; Copy-Item -LiteralPath (Resolve-Path -LiteralPath $Installer).Path -Destination $setup -Force; $payloads+=@($setup)}
+$stablePackage=Join-Path (Split-Path (Split-Path $PSScriptRoot -Parent) -Parent) 'outputs/Discord-Vlad-Stable-1.0.zip'
+if(Test-Path -LiteralPath $stablePackage){$stable=Join-Path $stage 'Discord-Vlad-Stable-1.0.zip';Copy-Item -LiteralPath $stablePackage -Destination $stable -Force;$payloads+=@($stable)}
+$lines=foreach($file in $payloads){(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()+'  '+[IO.Path]::GetFileName($file)}
 [IO.File]::WriteAllText($sha,($lines -join "`n")+"`n",(New-Object Text.UTF8Encoding($false)))
 if($PrepareOnly){Write-Output ('Prepared: '+$stage);return}
 $command=Get-Command gh -ErrorAction SilentlyContinue
@@ -37,7 +42,7 @@ else{
 }
 & $gh release edit $tag --repo $repo --title ('Flow Lab '+$Version) --notes-file $publishNotes
 if($LASTEXITCODE -ne 0){throw 'Could not update draft release notes'}
-& $gh release upload $tag $binary $zip $sha --repo $repo --clobber
+& $gh release upload $tag @payloads $sha --repo $repo --clobber
 if($LASTEXITCODE -ne 0){throw 'Upload failed; draft retained'}
 $draftJson=& $gh release view $tag --repo $repo --json databaseId,isDraft
 if($LASTEXITCODE -ne 0){throw 'Could not locate uploaded draft'}
@@ -49,6 +54,11 @@ $release=$releaseJson | ConvertFrom-Json
 $asset=@($release.assets | Where-Object name -eq 'Flow-Lab.exe')
 $expected='sha256:'+(Get-FileHash -LiteralPath $binary -Algorithm SHA256).Hash.ToLowerInvariant()
 if($asset.Count -ne 1 -or $asset[0].digest -ne $expected -or $asset[0].size -ne (Get-Item -LiteralPath $binary).Length){throw 'GitHub digest/size mismatch; release left as draft'}
+foreach($file in @($payloads)+@($sha)){
+ $entry=@($release.assets | Where-Object name -eq ([IO.Path]::GetFileName($file)))
+ $digest='sha256:'+(Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant()
+ if($entry.Count -ne 1 -or $entry[0].digest -ne $digest -or $entry[0].size -ne (Get-Item -LiteralPath $file).Length){throw ('Digest/size mismatch: '+$file+'; draft retained')}
+}
 & $gh release edit $tag --repo $repo --draft=false --latest
 if($LASTEXITCODE -ne 0){throw 'Publish failed; inspect the draft on GitHub'}
 Write-Output ('Published: https://github.com/'+$repo+'/releases/tag/'+$tag)
