@@ -40,3 +40,10 @@ SHA256 2e4a965a8423df6b3dab2876aebc23b0d7763e43e550990269f402d2787d14f8
 SHA256 установленного EXE совпал с выпуском; 41 тест из установленного EXE
 прошёл; тестовая установка удалена. Рабочая Flow Lab продолжала работать.
 Побайтно сохранены: Engine.cs, RecoveryController.cs, RecoveryPolicy.cs, AudioContinuity.cs, OutgoingRecovery.cs, GameSettings.cs, ZapretSwitch.cs, vlad-stable.bat, ttl4.bat, ZapretModule.cs.
+
+ПОСЛЕ ПУБЛИКАЦИИ
+GitHub Latest v1.2.1: опубликован, не предварительный. Размеры и SHA256 всех
+пяти вложений проверены. Версии 1.2.0 и 1.2.1 действительно получили новый
+выпуск и скачали EXE с проверкой SHA256:
+b47898204190c17fa395a4d53fec50bd58f81698d1eac467b89be0471f21b7f2
+Рабочий EXE и настройки пользователя при этом не заменялись.
